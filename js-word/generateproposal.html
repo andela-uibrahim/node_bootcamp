@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title></title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+
+    </head>
+    <body>
+        <!--[if lt IE 7]>
+            <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="#">upgrade your browser</a> to improve your experience.</p>
+        <![endif]-->
+            
+          
+          <form class="form" role="form">
+                <div class="form-group">
+                    <label >First Name</label>
+                    <input  class="form-control" id="firstName">
+                </div>
+
+                <div class="form-group">
+                    <label>Last Name</label>
+                    <input class="form-control" id="lastName">
+                </div>
+
+
+            </form>
+
+            <h2>Website Details </h2>
+             <form class="form" role="form" id="choices">
+                
+             </form>
+            
+             <button id="submit"> Submit </button>
+
+        <script
+            src="https://code.jquery.com/jquery-3.2.1.js"
+            integrity="sha256-DZAnKJ/6XZ9si04Hgrsxu/8s717jcIzLy3oi35EouyE="
+            crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.16.2/axios.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+        
+        <script>
+            
+            var Choice = function (title, cost , quantity , costPerPage ){
+                this.title = title; 
+                this.quantity = quantity ; 
+                this.cost = cost ; 
+                this.costPerPage = costPerPage == 0 ? costPerPage : cost * costPerPage ; 
+            }
+
+            var choicesList = [ 
+                new Choice("Domain Registration", 10, 1, 0 ),
+                new Choice("Hosting Setup", 10, 1, 0 ),
+                new Choice("Content Creation", 10 , 1 , 50 )
+            ]
+                  
+              $("#submit").on("click", function(element){
+                 onSubmitAttempt();
+             });
+
+            function onSubmitAttempt(){
+                 var selectedItems = getSelectedItems(); 
+                 var totalCost = 0 ;
+                 for (var i = 0 ; i < selectedItems.length ; i ++){
+                     totalCost += totalCost + calculateChoiceCost(selectedItems[i]); 
+                 }
+                 firstName = document.getElementById("firstName").value
+                 lastName = document.getElementById("lastName").value
+
+                 console.log(firstName, lastName, selectedItems)
+
+                generateWordDocument( totalCost, selectedItems, firstName, lastName);            
+             }
+
+            function getSelectedItems(){
+                 var pos = 0 ;
+                 var selectedItems = [];
+                 $('#choices').children('div').each(function ( child) {
+                     var isChecked = $(this).find("input").is(":checked");
+                     if( isChecked) {
+                        selectedItems.push( choicesList[pos] );
+                     }
+                    pos = pos += 1 ;
+                });
+                return selectedItems ;
+             }
+             
+            function calculateChoiceCost( choice){
+                 return choice.costPerPage == 0 ? choice.cost : choice.cost * 3 ;
+             }
+
+            
+
+            function generateWordDocument(totalCost, selectedItems, firstName, lastName){
+                const payload = {
+                  totalCost,
+                  selectedItems,
+                  firstName,
+                  lastName
+                }
+
+                axios.post("/api/generatedoc", payload)
+                .then((data)=>{
+                  console.log("=================datatatatatatatat===+>",data)
+                }).catch((error)=>{
+                  console.log("=======ererererererer============>", error)
+                })
+              
+             }
+
+             for( var i = 0 ; i < choicesList.length ; i++){
+                createChoiceCheckbox(   choicesList[i].title   );
+             }
+             
+             function createChoiceCheckbox(label, position){
+                 var fieldHTML = '<div class="checkbox"><label><input type="checkbox" value=' + position + '/>' + label +  '</label> </div>';
+                $("#choices").append(fieldHTML);
+             }
+
+            
+            
+             
+           
+
+        </script>
+    </body>
+</html>
